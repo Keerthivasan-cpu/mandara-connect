@@ -47,15 +47,31 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+        medical: {
+          DEFAULT: "hsl(var(--medical-primary))",
+          foreground: "hsl(var(--medical-primary-foreground))",
+          secondary: "hsl(var(--medical-secondary))",
+          "secondary-foreground": "hsl(var(--medical-secondary-foreground))",
+        },
+        success: {
+          medical: "hsl(var(--success-medical))",
+        },
+        warning: {
+          medical: "hsl(var(--warning-medical))",
+        },
+        error: {
+          medical: "hsl(var(--error-medical))",
+        },
+        info: {
+          medical: "hsl(var(--info-medical))",
+        },
+        ayurveda: {
+          DEFAULT: "hsl(var(--ayurveda-primary))",
+          secondary: "hsl(var(--ayurveda-secondary))",
+        },
+        icd: {
+          DEFAULT: "hsl(var(--icd-primary))",
+          secondary: "hsl(var(--icd-secondary))",
         },
       },
       borderRadius: {
