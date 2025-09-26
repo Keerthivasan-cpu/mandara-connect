@@ -14,7 +14,253 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      data_exchange_requests: {
+        Row: {
+          approved_by: string | null
+          created_at: string
+          id: string
+          patient_id: string
+          request_data: Json | null
+          request_type: string
+          requested_by: string
+          requesting_clinic_id: string
+          response_data: Json | null
+          status: string
+          target_clinic_id: string
+          updated_at: string
+        }
+        Insert: {
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          patient_id: string
+          request_data?: Json | null
+          request_type: string
+          requested_by: string
+          requesting_clinic_id: string
+          response_data?: Json | null
+          status?: string
+          target_clinic_id: string
+          updated_at?: string
+        }
+        Update: {
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          patient_id?: string
+          request_data?: Json | null
+          request_type?: string
+          requested_by?: string
+          requesting_clinic_id?: string
+          response_data?: Json | null
+          status?: string
+          target_clinic_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "data_exchange_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "data_exchange_requests_requested_by_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      icd11_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          display: string
+          id: string
+          module: string
+          namaste_mappings: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display: string
+          id?: string
+          module: string
+          namaste_mappings?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display?: string
+          id?: string
+          module?: string
+          namaste_mappings?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "icd11_codes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      namaste_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          display: string
+          icd11_mappings: string[] | null
+          id: string
+          system: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display: string
+          icd11_mappings?: string[] | null
+          id?: string
+          system: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display?: string
+          icd11_mappings?: string[] | null
+          id?: string
+          system?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "namaste_codes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      problem_entries: {
+        Row: {
+          clinic_id: string
+          clinical_notes: string | null
+          clinical_status: string
+          created_at: string
+          created_by: string
+          icd11_code_ids: string[] | null
+          id: string
+          namaste_code_id: string | null
+          onset_date: string | null
+          patient_id: string
+          recorded_date: string
+          severity: string
+          updated_at: string
+        }
+        Insert: {
+          clinic_id: string
+          clinical_notes?: string | null
+          clinical_status: string
+          created_at?: string
+          created_by: string
+          icd11_code_ids?: string[] | null
+          id?: string
+          namaste_code_id?: string | null
+          onset_date?: string | null
+          patient_id: string
+          recorded_date?: string
+          severity: string
+          updated_at?: string
+        }
+        Update: {
+          clinic_id?: string
+          clinical_notes?: string | null
+          clinical_status?: string
+          created_at?: string
+          created_by?: string
+          icd11_code_ids?: string[] | null
+          id?: string
+          namaste_code_id?: string | null
+          onset_date?: string | null
+          patient_id?: string
+          recorded_date?: string
+          severity?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "problem_entries_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "problem_entries_namaste_code_id_fkey"
+            columns: ["namaste_code_id"]
+            isOneToOne: false
+            referencedRelation: "namaste_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          clinic_id: string | null
+          clinic_name: string | null
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          role: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clinic_id?: string | null
+          clinic_name?: string | null
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id?: string
+          role?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clinic_id?: string | null
+          clinic_name?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          role?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

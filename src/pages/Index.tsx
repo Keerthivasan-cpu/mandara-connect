@@ -12,18 +12,24 @@ import {
   Stethoscope,
   BookOpen,
   Activity,
-  Settings
+  Settings,
+  LogOut,
+  User,
+  Building
 } from 'lucide-react';
-import { TerminologySearch } from '@/components/TerminologySearch';
-import { ProblemListManager } from '@/components/ProblemListManager';
-import { FHIRResourceViewer } from '@/components/FHIRResourceViewer';
-import { NAMASTECode, ICD11Code, FHIRProblemEntry } from '@/data/mockData';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import { useAuth } from '@/hooks/useAuth';
+import { useSupabaseData, NAMASTECode, ICD11Code, ProblemEntry } from '@/hooks/useSupabaseData';
+import { TerminologySearch } from '@/components/TerminologySearchUpdated';
+import { ProblemListManager } from '@/components/ProblemListManagerUpdated';
+import { FHIRResourceViewer } from '@/components/FHIRResourceViewerUpdated';
 import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
+  const { profile, signOut } = useAuth();
+  const { namasteCodes, icd11Codes, problemEntries, loading, addProblemEntry } = useSupabaseData();
   const [selectedNAMASTE, setSelectedNAMASTE] = useState<NAMASTECode | undefined>();
   const [selectedICD11, setSelectedICD11] = useState<ICD11Code[]>([]);
-  const [problems, setProblems] = useState<FHIRProblemEntry[]>([]);
   const [activeTab, setActiveTab] = useState('search');
   const { toast } = useToast();
 
@@ -45,10 +51,32 @@ const Index = () => {
     }
   };
 
-  const handleAddProblem = (problem: Partial<FHIRProblemEntry>) => {
-    setProblems(prev => [...prev, problem as FHIRProblemEntry]);
-    setSelectedNAMASTE(undefined);
-    setSelectedICD11([]);
+  const handleAddProblem = async (problemData: any) => {
+    try {
+      await addProblemEntry({
+        patient_id: problemData.patientId || 'PATIENT-001',
+        namaste_code_id: selectedNAMASTE?.id || '',
+        icd11_code_ids: selectedICD11.map(code => code.id),
+        clinical_status: problemData.clinicalStatus,
+        severity: problemData.severity,
+        onset_date: problemData.onsetDate,
+        clinical_notes: problemData.clinicalNotes || '',
+      });
+      
+      setSelectedNAMASTE(undefined);
+      setSelectedICD11([]);
+      
+      toast({
+        title: "Problem Added",
+        description: "FHIR problem entry has been created successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   const clearSelections = () => {
@@ -57,36 +85,53 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-medical">
-                FHIR NAMASTE-ICD11 Integration Platform
-              </h1>
-              <p className="text-muted-foreground mt-2">
-                Harmonizing Traditional Medicine Terminologies with Global Healthcare Standards
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <Badge className="bg-success-medical text-white">
-                <Shield className="h-3 w-3 mr-1" />
-                FHIR R4 Compliant
-              </Badge>
-              <Badge className="bg-ayurveda text-white">
-                <BookOpen className="h-3 w-3 mr-1" />
-                NAMASTE Ready
-              </Badge>
-              <Badge className="bg-icd text-white">
-                <Globe className="h-3 w-3 mr-1" />
-                ICD-11 TM2
-              </Badge>
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="border-b bg-white shadow-sm">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-medical">
+                  FHIR NAMASTE-ICD11 Integration Platform
+                </h1>
+                <p className="text-muted-foreground mt-2">
+                  Harmonizing Traditional Medicine Terminologies with Global Healthcare Standards
+                </p>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 mr-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <User className="h-4 w-4" />
+                    <span className="font-medium">{profile?.full_name}</span>
+                  </div>
+                  {profile?.clinic_name && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Building className="h-4 w-4" />
+                      <span>{profile.clinic_name}</span>
+                    </div>
+                  )}
+                  <Button variant="outline" size="sm" onClick={() => signOut()}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </div>
+                <Badge className="bg-success-medical text-white">
+                  <Shield className="h-3 w-3 mr-1" />
+                  FHIR R4 Compliant
+                </Badge>
+                <Badge className="bg-ayurveda text-white">
+                  <BookOpen className="h-3 w-3 mr-1" />
+                  NAMASTE Ready
+                </Badge>
+                <Badge className="bg-icd text-white">
+                  <Globe className="h-3 w-3 mr-1" />
+                  ICD-11 TM2
+                </Badge>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
@@ -98,7 +143,7 @@ const Index = () => {
                 <BookOpen className="h-8 w-8 text-ayurveda" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-muted-foreground">NAMASTE Codes</p>
-                  <p className="text-2xl font-bold text-ayurveda">4,500+</p>
+                  <p className="text-2xl font-bold text-ayurveda">{namasteCodes.length}</p>
                 </div>
               </div>
             </CardContent>
@@ -109,8 +154,8 @@ const Index = () => {
               <div className="flex items-center">
                 <Globe className="h-8 w-8 text-icd" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-muted-foreground">ICD-11 TM2</p>
-                  <p className="text-2xl font-bold text-icd">529</p>
+                  <p className="text-sm font-medium text-muted-foreground">ICD-11 Codes</p>
+                  <p className="text-2xl font-bold text-icd">{icd11Codes.length}</p>
                 </div>
               </div>
             </CardContent>
@@ -122,7 +167,7 @@ const Index = () => {
                 <Stethoscope className="h-8 w-8 text-medical" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-muted-foreground">Active Problems</p>
-                  <p className="text-2xl font-bold text-medical">{problems.length}</p>
+                  <p className="text-2xl font-bold text-medical">{problemEntries.length}</p>
                 </div>
               </div>
             </CardContent>
@@ -231,7 +276,7 @@ const Index = () => {
             <FHIRResourceViewer
               selectedNAMASTE={selectedNAMASTE}
               selectedICD11={selectedICD11}
-              problems={problems}
+              problems={problemEntries}
             />
           </TabsContent>
 
@@ -277,7 +322,8 @@ const Index = () => {
           </TabsContent>
         </Tabs>
       </main>
-    </div>
+      </div>
+    </ProtectedRoute>
   );
 };
 
